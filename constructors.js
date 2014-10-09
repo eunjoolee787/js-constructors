@@ -9,12 +9,23 @@
  * @property {number} cost
  * @property {string} description
  */
-
+function Spell (name, cost, description){
+  this.name = name;
+  this.cost = cost;
+  this.description = description;
   /**
    * Print out all spell details and format it nicely.
    * The format doesnt matter, as long as it contains the spell name, cost, and description.
    * @name printDetails
    */
+   this.printDetails = function(){
+      console.log(name + " " + cost + " " + description);
+   }
+
+}  
+
+   var spell = new Spell("Anne", 5, "sweater");
+   spell.printDetails();
 
 /**
  * A spell that deals damage.
@@ -28,7 +39,7 @@
  * a value so that it inherits from `Spell`.
  * Make sure to call this OUTSIDE of the function declaration.
  *
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/prototype
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Inheritance_and_the_prototype_chain
  *
  * @name DamageSpell
  * @param {string} name         The name of the spell.
@@ -40,6 +51,13 @@
  * @property {number} damage
  * @property {string} description
  */
+
+function DamageSpell (name, cost, damage, description){
+   Spell.call(this, name, cost, description);
+   this.damage = damage;
+}
+DamageSpell.prototype = new Spell();
+
 
 /**
  * Now that you've created some spells, let's create
@@ -54,6 +72,11 @@
  * @property {mana} mana
  * @property {boolean} isAlive  Default value should be `true`.
  */
+function Spellcaster (name, health, mana){
+   this.name = name;
+   this.health = health;
+   this.mana = mana;
+   this.isAlive = true;
 
   /**
    * The spellcaster loses health equal to `damage`.
@@ -64,7 +87,15 @@
    * @name inflictDamage
    * @param  {number} damage  Amount of damage to deal to the spellcaster
    */
-
+   this.inflictDamage = function(damage){
+      this.health = this.health - damage 
+      if(this.health < 0){
+         this.health = 0;
+      } 
+      if (this.health === 0){ 
+         this.isAlive = false;
+      }
+   }
   /**
    * Reduces the spellcaster's mana by `cost`.
    * Mana should only be reduced only if there is enough mana to spend.
@@ -73,7 +104,15 @@
    * @param  {number} cost      The amount of mana to spend.
    * @return {boolean} success  Whether mana was successfully spent.
    */
-
+  this.spendMana = function(cost){
+    if(cost <= this.mana){
+      this.mana = this.mana - cost;
+      return true;
+    } else {
+      return false;
+    }
+  }
+    
   /**
    * Allows the spellcaster to cast spells.
    * The first parameter should either be a `Spell` or `DamageSpell`.
@@ -99,3 +138,23 @@
    * @param  {Spellcaster} target         The spell target to be inflicted.
    * @return {boolean}                    Whether the spell was successfully cast.
    */
+ 
+  this.invoke = function(spell, target){
+
+    if(spell instanceof Spell || spell instanceof DamageSpell){ //validate if spell is a Spell or DamageSpell
+      if(this.mana <= spell.cost){ //do I have enough mana to cast this spell?
+        this.mana -= spell.cost; //spend my mana
+        if(spell instanceof DamageSpell){//is the spell a DamageSpell
+          target.health -= spell.damage;          //reduce the target health by the spell damage value
+        }                              
+        return true;
+      } else {
+        return false;
+      }
+      
+    } else {
+      return false;
+    }
+  }
+    
+}
