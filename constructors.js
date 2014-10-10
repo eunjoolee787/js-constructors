@@ -1,4 +1,4 @@
-/**
+ /**
  * Creates a generic spell that can be cast.
  *
  * @name Spell
@@ -89,12 +89,10 @@ function Spellcaster (name, health, mana){
    */
    this.inflictDamage = function(damage){
       this.health = this.health - damage 
-      if(this.health < 0){
+      if(this.health <= 0){
          this.health = 0;
-      } 
-      if (this.health === 0){ 
          this.isAlive = false;
-      }
+      } 
    }
   /**
    * Reduces the spellcaster's mana by `cost`.
@@ -119,16 +117,16 @@ function Spellcaster (name, health, mana){
    * If it is a `DamageSpell`, the second parameter should be a `Spellcaster`.
    * The function should return `false` if the above conditions are not satisfied.
    *
-   * You should use `instanceof` to check for these conditions.
+   * You should use `instanceof` to check for these conditions.//EJL-done
    *
    * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/instanceof
    *
-   * Next check if the spellcaster has enough mana to cast the spell.
+   * Next check if the spellcaster has enough mana to cast the spell.//EJL-done
    * If it can cast a spell, it should lose mana  equal to the spell's cost.
-   * If there is not enough mana, return `false`.
+   * If there is not enough mana, return `false`.//EJL-done
    *
    * If there is enough mana to cast the spell, return `true`.
-   * In addition, if it is a `DamageSpell` reduce the target's health by the spell's damage value.
+   * In addition, if it is a `DamageSpell` reduce the target's health by the spell's damage value.//EJL-done
    *
    * Use functions you've previously created: (`inflictDamage`, `spendMana`)
    * to help you with this.
@@ -141,18 +139,23 @@ function Spellcaster (name, health, mana){
  
   this.invoke = function(spell, target){
 
-    if(spell instanceof Spell || spell instanceof DamageSpell){ //validate if spell is a Spell or DamageSpell
-      if(this.mana <= spell.cost){ //do I have enough mana to cast this spell?
-        this.mana -= spell.cost; //spend my mana
-        if(spell instanceof DamageSpell){//is the spell a DamageSpell
-          target.health -= spell.damage;          //reduce the target health by the spell damage value
-        }                              
+    //checking when parent or child? If have check for parent you don't need to also check for the child
+    // Spell is the parent, DamageSpell is the child, a child is always an instance of the parent
+    if(spell instanceof Spell){ //validate if spell is a Spell or DamageSpell//TEST-should be called Spell as the first parameter
+      if(this.mana >= spell.cost){ //do I have enough mana to cast this spell?-126//TEST-should spend mana to cast the spell
+        if(spell instanceof DamageSpell){//is the spell a DamageSpell-131//
+          if(!target){//TEST-should target a Spellcaster if it is called with a DamageSpell
+            return false;
+          }
+          target.health -= spell.damage; //reduce the target health by the spell damage value-131//TEST-should only spend mana if the DamageSpell was succesfully invoked
+        }
+        this.mana -= spell.cost; //spend my mana-127//TEST-should not cast the spell if the Spellcaster does not have enough mana
         return true;
-      } else {
-        return false;
+      } else {//TEST-should not deal damage if the DamageSpell was not successfully invoked
+        return false; // Spellcaster does not have enough mana
       }
       
-    } else {
+    } else {//TEST-should deal damage to target only if DamageSpell is successfully invoked
       return false;
     }
   }
